@@ -1,0 +1,34 @@
+Data was requested from:
+http://geogratis.gc.ca/site/eng/extraction?id=2016_56d22080b7b659.63408537 [Edmonton]
+http://geogratis.gc.ca/site/eng/extraction?id=2016_56d21f00c3b8f7.66270943 [Custom Edmonton]
+http://geogratis.gc.ca/site/eng/extraction?id=2016_56d222775d6c89.85406660 [Calgary]
+http://geogratis.gc.ca/site/eng/extraction?id=2016_56d224545878b9.37862115 [Vancouver]
+http://geogratis.gc.ca/site/eng/extraction?id=2016_56d224dd444952.67613723 [Ottawa]
+http://geogratis.gc.ca/site/eng/extraction?id=2016_56d225c599baa6.98163397 [Niagra]
+http://geogratis.gc.ca/site/eng/extraction?id=2016_56d225eb59b651.60216343 [Toronto]
+
+
+To get SARndbox to build on CSC lab machines:
+
+mkdir ~/lib
+cd ~/lib
+apt-get source libusb-1.0-0
+cd libusbx-1.0.17/
+./configure --prefix=$HOME/bin --disable-udev
+make
+make install
+
+cd ~/src/Vrui-3.1
+Change line 68 in SystemDefinitions to 'SYSTEM_PACKAGE_SEARCH_PATHS = /usr/local /usr /cshome/[your csid]/bin'
+Change line 156 in Packages.System to 'LIBUSB1_LIBDIR  = -L$(LIBUSB1_BASEDIR)/lib'
+make
+make install
+
+cd ~/src/Kinect-2.8
+make
+make install
+
+cd /path/to/SARndbox
+make
+
+./bin/SARndbox
