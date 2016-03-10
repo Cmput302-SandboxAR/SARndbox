@@ -1030,6 +1030,10 @@ void Sandbox::frame(void)
 	if(filteredFrames.lockNewValue())
 		{
 		/* Update the surface renderer's depth image: */
+		if(!surfaceRenderer->GetDepthSnapInitialized())
+		{
+			surfaceRenderer->setDepthImageSnap(filteredFrames.getLockedValue());
+		}
 		surfaceRenderer->setDepthImage(filteredFrames.getLockedValue());
 		}
 

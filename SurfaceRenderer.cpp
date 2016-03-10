@@ -450,6 +450,8 @@ SurfaceRenderer::SurfaceRenderer(const unsigned int sSize[2],const SurfaceRender
 	 depthImageVersion(1),
 	 animationTime(0.0)
 	{
+		depthSnapInitialized = false;
+
 	/* Monitor the external shader source files: */
 	fileMonitor.addPath((std::string(SHADERDIR)+std::string("/SurfaceAddContourLines.fs")).c_str(),IO::FileMonitor::Modified,Misc::createFunctionCall(this,&SurfaceRenderer::shaderSourceFileChanged));
 	fileMonitor.addPath((std::string(SHADERDIR)+std::string("/SurfaceIlluminate.fs")).c_str(),IO::FileMonitor::Modified,Misc::createFunctionCall(this,&SurfaceRenderer::shaderSourceFileChanged));
@@ -490,11 +492,13 @@ SurfaceRenderer::SurfaceRenderer(const unsigned int sSize[2],const SurfaceRender
 
 	/* Initialize the depth image: */
 	depthImage=Kinect::FrameBuffer(size[0],size[1],size[1]*size[0]*sizeof(float));
-	depthImageSnapshot=depthImage;
+	depthImageSnapshot=Kinect::FrameBuffer(size[0],size[1],size[1]*size[0]*sizeof(float));
 	float* diPtr=static_cast<float*>(depthImage.getBuffer());
+	float* diPtrSnap=static_cast<float*>(depthImageSnapshot.getBuffer());
 	for(unsigned int y=0;y<size[1];++y)
 		for(unsigned int x=0;x<size[0];++x,++diPtr)
 			*diPtr=0.0f;
+			*diPtrSnap=0.0f;
 	}
 
 void SurfaceRenderer::initContext(GLContextData& contextData) const
@@ -672,6 +676,12 @@ void SurfaceRenderer::setDepthImage(const Kinect::FrameBuffer& newDepthImage)
 	/* Update the depth image: */
 	depthImage=newDepthImage;
 	++depthImageVersion;
+	}
+
+	void SurfaceRenderer::setDepthImageSnap(const Kinect::FrameBuffer& newDepthImage)
+	{
+		depthImageSnapshot=newDepthImage;
+		depthSnapInitialized=true;
 	}
 
 void SurfaceRenderer::setAnimationTime(double newAnimationTime)
