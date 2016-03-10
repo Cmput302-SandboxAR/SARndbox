@@ -9,7 +9,7 @@ http://geogratis.gc.ca/site/eng/extraction?id=2016_56d225eb59b651.60216343 [Toro
 
 
 To get SARndbox to build on CSC lab machines:
-
+=============================================
 mkdir ~/lib
 cd ~/lib
 apt-get source libusb-1.0-0
@@ -32,3 +32,22 @@ cd /path/to/SARndbox
 make
 
 ./bin/SARndbox
+
+
+Useful command line arguments
+=============================
+
+-hcm <elevation color map file name>
+	Sets the name of the elevation color map
+
+-ncl
+	Disables topographic contour lines
+
+
+
+Useful hard coding changes
+==========================
+
+Sandbox.cpp:line 962 (Will disable water)
+	from:	surfaceRenderer->setWaterTable(waterTable);
+	to:		surfaceRenderer->setWaterTable(NULL);
