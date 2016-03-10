@@ -496,7 +496,7 @@ SurfaceRenderer::SurfaceRenderer(const unsigned int sSize[2],const SurfaceRender
 	float* diPtr=static_cast<float*>(depthImage.getBuffer());
 	float* diPtrSnap=static_cast<float*>(depthImageSnapshot.getBuffer());
 	for(unsigned int y=0;y<size[1];++y)
-		for(unsigned int x=0;x<size[0];++x,++diPtr)
+		for(unsigned int x=0;x<size[0];++x,++diPtr,++diPtrSnap)
 			*diPtr=0.0f;
 			*diPtrSnap=0.0f;
 	}
@@ -1194,7 +1194,8 @@ void SurfaceRenderer::glRenderGlobalAmbientHeightMap(GLuint heightColorMapTextur
 		if(dataItem->depthTextureVersion!=depthImageVersion)
 			{
 			/* Upload the new depth texture: */
-			glTexSubImage2D(GL_TEXTURE_RECTANGLE_ARB,0,0,0,size[0],size[1],GL_LUMINANCE,GL_FLOAT,depthImage.getBuffer() - depthImageSnapshot.getBuffer());
+			BufferDifference(depthImage.getBuffer(), depthImageSnapshot.getBuffer());
+			glTexSubImage2D(GL_TEXTURE_RECTANGLE_ARB,0,0,0,size[0],size[1],GL_LUMINANCE,GL_FLOAT, depthImage.getBuffer());
 
 			/* Mark the depth texture as current: */
 			dataItem->depthTextureVersion=depthImageVersion;
