@@ -959,7 +959,7 @@ Sandbox::Sandbox(int& argc,char**& argv)
 			}
 		else
 			{
-			surfaceRenderer->setWaterTable(waterTable);
+			surfaceRenderer->setWaterTable(NULL);
 			surfaceRenderer->setAdvectWaterTexture(true);
 			surfaceRenderer->setWaterOpacity(waterOpacity);
 			}
