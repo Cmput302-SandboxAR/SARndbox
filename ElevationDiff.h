@@ -13,6 +13,4 @@ void BufferDifference(Kinect::FrameBuffer a, Kinect::FrameBuffer b)
     for(unsigned int y=0;y<a.getSize(1);++y)
         for(unsigned int x=0;x<a.getSize(0);++x,++diPtrA,++diPtrB)
             *diPtrA -= *diPtrB;
-    
-    
 }

@@ -778,7 +778,7 @@ void SurfaceRenderer::glRenderElevation(GLContextData& contextData) const
 		if(dataItem->depthTextureVersion!=depthImageVersion)
 			{
 			/* Upload the new depth texture: */
-			glTexSubImage2D(GL_TEXTURE_RECTANGLE_ARB,0,0,0,size[0],size[1],GL_LUMINANCE,GL_FLOAT,depthImage.getBuffer());
+			glTexSubImage2D(GL_TEXTURE_RECTANGLE_ARB,0,0,0,size[0],size[1],GL_LUMINANCE,GL_FLOAT,depthImageSnapshot.getBuffer());
 
 			/* Mark the depth texture as current: */
 			dataItem->depthTextureVersion=depthImageVersion;
@@ -1195,7 +1195,6 @@ void SurfaceRenderer::glRenderGlobalAmbientHeightMap(GLuint heightColorMapTextur
 		if(dataItem->depthTextureVersion!=depthImageVersion)
 			{
 			/* Upload the new depth texture: */
-			BufferDifference(depthImage, depthImageSnapshot);
 			glTexSubImage2D(GL_TEXTURE_RECTANGLE_ARB,0,0,0,size[0],size[1],GL_LUMINANCE,GL_FLOAT, depthImage.getBuffer());
 
 			/* Mark the depth texture as current: */
