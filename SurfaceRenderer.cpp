@@ -497,9 +497,13 @@ SurfaceRenderer::SurfaceRenderer(const unsigned int sSize[2],const SurfaceRender
 	float* diPtr=static_cast<float*>(depthImage.getBuffer());
 	float* diPtrSnap=static_cast<float*>(depthImageSnapshot.getBuffer());
 	for(unsigned int y=0;y<size[1];++y)
+	  {
 		for(unsigned int x=0;x<size[0];++x,++diPtr,++diPtrSnap)
+		  {
 			*diPtr=0.0f;
 			*diPtrSnap=0.0f;
+		  }
+	  }
 	}
 
 void SurfaceRenderer::initContext(GLContextData& contextData) const
