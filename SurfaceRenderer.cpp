@@ -86,6 +86,7 @@ Methods of class SurfaceRenderer::DataItem:
 SurfaceRenderer::DataItem::DataItem(void)
 	:vertexBuffer(0),indexBuffer(0),
 	 depthTexture(0),depthTextureVersion(0),
+	depthSnapTexture(0),
 	 depthShader(0),elevationShader(0),
 	 contourLineFramebufferObject(0),contourLineDepthBufferObject(0),contourLineColorTextureObject(0),
 	 heightMapShader(0),lightTrackerVersion(0),surfaceSettingsVersion(0),
@@ -119,6 +120,7 @@ SurfaceRenderer::DataItem::DataItem(void)
 	glGenBuffersARB(1,&vertexBuffer);
 	glGenBuffersARB(1,&indexBuffer);
 	glGenTextures(1,&depthTexture);
+	glGenTextures(1,&depthSnapTexture);
 	}
 
 SurfaceRenderer::DataItem::~DataItem(void)
@@ -127,6 +129,7 @@ SurfaceRenderer::DataItem::~DataItem(void)
 	glDeleteBuffersARB(1,&vertexBuffer);
 	glDeleteBuffersARB(1,&indexBuffer);
 	glDeleteTextures(1,&depthTexture);
+	glDeleteTextures(1,&depthSnapTexture);
 	glDeleteObjectARB(depthShader);
 	glDeleteObjectARB(elevationShader);
 	glDeleteFramebuffersEXT(1,&contourLineFramebufferObject);
@@ -500,9 +503,10 @@ SurfaceRenderer::SurfaceRenderer(const unsigned int sSize[2],const SurfaceRender
 	float* diPtr=static_cast<float*>(depthImage.getBuffer());
 	float* diPtrSnap=static_cast<float*>(depthImageSnapshot.getBuffer());
 	for(unsigned int y=0;y<size[1];++y)
-		for(unsigned int x=0;x<size[0];++x,++diPtr,++diPtrSnap)
+		for(unsigned int x=0;x<size[0];++x,++diPtr,++diPtrSnap) {
 			*diPtr=0.0f;
 			*diPtrSnap=0.0f;
+		}
 	}
 
 void SurfaceRenderer::initContext(GLContextData& contextData) const
@@ -539,6 +543,7 @@ void SurfaceRenderer::initContext(GLContextData& contextData) const
 	glUnmapBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB);
 	glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB,0);
 
+	
 	/* Initialize the depth image texture: */
 	glBindTexture(GL_TEXTURE_RECTANGLE_ARB,dataItem->depthTexture);
 	glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
@@ -547,6 +552,16 @@ void SurfaceRenderer::initContext(GLContextData& contextData) const
 	glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_WRAP_T,GL_CLAMP);
 	glTexImage2D(GL_TEXTURE_RECTANGLE_ARB,0,GL_LUMINANCE32F_ARB,size[0],size[1],0,GL_LUMINANCE,GL_UNSIGNED_BYTE,0);
 	glBindTexture(GL_TEXTURE_RECTANGLE_ARB,0);
+
+	/* Initialize the depth snapshot image texture: */
+	glBindTexture(GL_TEXTURE_RECTANGLE_ARB,dataItem->depthSnapTexture);
+	glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_MIN_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_MAG_FILTER,GL_NEAREST);
+	glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_WRAP_S,GL_CLAMP);
+	glTexParameteri(GL_TEXTURE_RECTANGLE_ARB,GL_TEXTURE_WRAP_T,GL_CLAMP);
+	glTexImage2D(GL_TEXTURE_RECTANGLE_ARB,0,GL_LUMINANCE32F_ARB,size[0],size[1],0,GL_LUMINANCE,GL_UNSIGNED_BYTE,0);
+	glBindTexture(GL_TEXTURE_RECTANGLE_ARB,0);
+
 
 	/* Create the surface depth render shader: */
 	{
@@ -569,6 +584,7 @@ void SurfaceRenderer::initContext(GLContextData& contextData) const
 	dataItem->elevationShaderUniforms[0]=glGetUniformLocationARB(dataItem->elevationShader,"depthSampler");
 	dataItem->elevationShaderUniforms[1]=glGetUniformLocationARB(dataItem->elevationShader,"depthProjection");
 	dataItem->elevationShaderUniforms[2]=glGetUniformLocationARB(dataItem->elevationShader,"basePlane");
+	dataItem->elevationShaderUniforms[3]=glGetUniformLocationARB(dataItem->elevationShader,"depthSnapSampler");
 	}
 
 	/* Create the height map render shader: */
@@ -685,13 +701,6 @@ void SurfaceRenderer::setDepthImage(const Kinect::FrameBuffer& newDepthImage)
 	void SurfaceRenderer::setDepthImageSnap(const Kinect::FrameBuffer& newDepthImage)
 	{
 		depthImageSnapshot=newDepthImage;
-
-		float* diPtr=(float*)(depthImageSnapshot.getBuffer());
-		for(unsigned int y=0;y<size[1];++y)
-			for(unsigned int x=0;x<size[0];++x,++diPtr) {
-				*diPtr -= 735;
-			}	
-
 		depthSnapInitialized=true;
 	}
 
@@ -788,36 +797,25 @@ void SurfaceRenderer::glRenderElevation(GLContextData& contextData) const
 		if(dataItem->depthTextureVersion!=depthImageVersion)
 			{
 			/* Upload the new depth texture: */
-			//glTexSubImage2D(GL_TEXTURE_RECTANGLE_ARB,0,0,0,size[0],size[1],GL_LUMINANCE,GL_FLOAT,depthImage.getBuffer()); //here
-			
-			//int index = size[0]*(size[1]/2) + size[0]/2;
-			//std::cout << diPtr[index];
-			//std::cout << "NEW THING STARTS HERE";
-
-			BufferAddition(depthImage, depthImageSnapshot, tmpBuffer);
-
-			float min = 100000.0f;
-			float max = -100000.0f;
-
-			float* diPtr=(float*)(tmpBuffer.getBuffer());
-			for(unsigned int y=0;y<size[1];++y)
-				for(unsigned int x=0;x<size[0];++x,++diPtr) {
-					//*diPtr = (float)rand()/RAND_MAX;
-					if (*diPtr < min)
-						min = *diPtr;
-					if (*diPtr > max)
-						max = *diPtr;
-				}
-			std::cout << "{" << min << ", " << max << "}" << std::endl;
-
-			glTexSubImage2D(GL_TEXTURE_RECTANGLE_ARB,0,0,0,size[0],size[1],GL_LUMINANCE,GL_FLOAT,tmpBuffer.getBuffer());
+			glTexSubImage2D(GL_TEXTURE_RECTANGLE_ARB,0,0,0,size[0],size[1],GL_LUMINANCE,GL_FLOAT,depthImage.getBuffer());
 
 			/* Mark the depth texture as current: */
 			dataItem->depthTextureVersion=depthImageVersion;
+
 			}
 		}
-
 	glUniform1iARB(dataItem->elevationShaderUniforms[0],0);
+	
+	/* Set up the depth image texture: */
+	if(!usePreboundDepthTexture)
+		{
+		glActiveTextureARB(GL_TEXTURE1_ARB);
+		glBindTexture(GL_TEXTURE_RECTANGLE_ARB,dataItem->depthSnapTexture);
+		/* Upload the new depth texture: */
+		glTexSubImage2D(GL_TEXTURE_RECTANGLE_ARB,0,0,0,size[0],size[1],GL_LUMINANCE,GL_FLOAT,depthImageSnapshot.getBuffer());
+
+		}
+	glUniform1iARB(dataItem->elevationShaderUniforms[3],0);
 
 	/* Upload the depth projection matrix: */
 	glUniformMatrix4fvARB(dataItem->elevationShaderUniforms[1],1,GL_FALSE,depthProjectionMatrix);
@@ -838,7 +836,10 @@ void SurfaceRenderer::glRenderElevation(GLContextData& contextData) const
 		{
 		glActiveTextureARB(GL_TEXTURE0_ARB);
 		glBindTexture(GL_TEXTURE_RECTANGLE_ARB,0);
+		glActiveTextureARB(GL_TEXTURE1_ARB);
+		glBindTexture(GL_TEXTURE_RECTANGLE_ARB,0);
 		}
+
 	glBindBufferARB(GL_ARRAY_BUFFER_ARB,0);
 	glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB,0);
 
@@ -971,6 +972,17 @@ void SurfaceRenderer::glPrepareContourLines(GLContextData& contextData) const
 		}
 	glUniform1iARB(dataItem->elevationShaderUniforms[0],0);
 
+	/* Set up the depth image texture: */
+	if(!usePreboundDepthTexture)
+		{
+		glActiveTextureARB(GL_TEXTURE1_ARB);
+		glBindTexture(GL_TEXTURE_RECTANGLE_ARB,dataItem->depthSnapTexture);
+		glTexSubImage2D(GL_TEXTURE_RECTANGLE_ARB,0,0,0,size[0],size[1],GL_LUMINANCE,GL_FLOAT,depthImageSnapshot.getBuffer());
+		}
+
+
+	glUniform1iARB(dataItem->elevationShaderUniforms[3],0);
+
 	/* Upload the depth projection matrix: */
 	glUniformMatrix4fvARB(dataItem->elevationShaderUniforms[1],1,GL_FALSE,depthProjectionMatrix);
 
@@ -990,7 +1002,10 @@ void SurfaceRenderer::glPrepareContourLines(GLContextData& contextData) const
 		{
 		glActiveTextureARB(GL_TEXTURE0_ARB);
 		glBindTexture(GL_TEXTURE_RECTANGLE_ARB,0);
+		glActiveTextureARB(GL_TEXTURE1_ARB);
+		glBindTexture(GL_TEXTURE_RECTANGLE_ARB,0);		
 		}
+
 	glBindBufferARB(GL_ARRAY_BUFFER_ARB,0);
 	glBindBufferARB(GL_ELEMENT_ARRAY_BUFFER_ARB,0);
 

@@ -23,22 +23,29 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #extension GL_ARB_texture_rectangle : enable
 
 uniform sampler2DRect depthSampler; // Sampler for the depth image-space elevation texture
+uniform sampler2DRect depthSnapSampler;
 uniform mat4 depthProjection; // Transformation from depth image space to camera space
 uniform vec4 basePlane; // Plane equation of the base plane
 
 varying float elevation; // Elevation relative to base plane
+varying float elevationSnap; // Elevation relative to base plane
 
 void main()
 	{
 	/* Get the vertex' depth image-space z coordinate from the texture: */
 	vec4 vertexDic=gl_Vertex;
+	vec4 vertexDicSnap=vertexDic;
+
 	vertexDic.z=texture2DRect(depthSampler,vertexDic.xy).r;
+	vertexDicSnap.z=texture2DRect(depthSnapSampler,vertexDicSnap.xy).r;
 	
 	/* Transform the vertex from depth image space to camera space: */
 	vec4 vertexCc=depthProjection*vertexDic;
+	vec4 vertexCcSnap=depthProjection*vertexDicSnap;
 	
 	/* Plug camera-space vertex into the base plane equation: */
 	elevation=dot(basePlane,vertexCc)/vertexCc.w;
+	elevationSnap=dot(basePlane,vertexCcSnap)/vertexCcSnap.w;
 	
 	/* Transform vertex to clip coordinates: */
 	gl_Position=gl_ModelViewProjectionMatrix*vertexCc;

@@ -52,6 +52,7 @@ class SurfaceRenderer:public GLObject
 		GLuint indexBuffer; // ID of index buffer object holding surface's triangles
 		GLuint depthTexture; // ID of texture object holding surface's vertex elevations in depth image space
 		unsigned int depthTextureVersion; // Version number of the depth image texture
+		GLuint depthSnapTexture; // ID of texture object holding surface's vertex elevations in depth image space
 		GLhandleARB depthShader; // Shader program to render the surface's depth only
 		GLint depthShaderUniforms[2]; // Locations of the depth shader's uniform variables
 		GLhandleARB elevationShader; // Shader program to render the surface's elevation relative to a plane
