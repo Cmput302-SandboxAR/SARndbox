@@ -94,6 +94,7 @@ class SurfaceRenderer:public GLObject
 	GLfloat waterOpacity; // Scaling factor for water opacity
 	Kinect::FrameBuffer depthImage; // The most recent float-pixel depth image
 	Kinect::FrameBuffer depthImageSnapshot;
+	Kinect::FrameBuffer tmpBuffer;
 	unsigned int depthImageVersion; // Version number of the depth image
 	double animationTime; // Time value for water animation
 
