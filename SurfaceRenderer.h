@@ -46,7 +46,6 @@ class SurfaceRenderer:public GLObject
 	private:
 	struct DataItem:public GLObject::DataItem
 		{
-		/* Elements: */
 		public:
 		GLuint vertexBuffer; // ID of vertex buffer object holding surface's template vertices
 		GLuint indexBuffer; // ID of index buffer object holding surface's triangles
@@ -56,7 +55,7 @@ class SurfaceRenderer:public GLObject
 		GLhandleARB depthShader; // Shader program to render the surface's depth only
 		GLint depthShaderUniforms[2]; // Locations of the depth shader's uniform variables
 		GLhandleARB elevationShader; // Shader program to render the surface's elevation relative to a plane
-		GLint elevationShaderUniforms[3]; // Locations of the elevation shader's uniform variables
+		GLint elevationShaderUniforms[4]; // Locations of the elevation shader's uniform variables
 		GLuint contourLineFramebufferSize[2]; // Current width and height of contour line rendering frame buffer
 		GLuint contourLineFramebufferObject; // Frame buffer object used to render topographic contour lines
 		GLuint contourLineDepthBufferObject; // Depth render buffer for topographic contour line frame buffer

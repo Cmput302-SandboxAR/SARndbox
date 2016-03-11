@@ -26,5 +26,5 @@ varying float elevationSnap;
 void main()
 	{
 	/* Write the elevation directly into the frame buffer: */
-	gl_FragColor=vec4(elevationSnap,0.0,0.0,1.0);
+	gl_FragColor=vec4(elevation,0.0,0.0,1.0);
 	}
