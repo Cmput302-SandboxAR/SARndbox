@@ -101,6 +101,10 @@ class SurfaceRenderer:public GLObject
 	/* Flags */
 	bool depthSnapInitialized;
 
+	void SnapInitialized(){
+		depthSnapInitialized = true;
+	}
+
 	/* Private methods: */
 	void shaderSourceFileChanged(const IO::FileMonitor::Event& event); // Callback called when one of the external shader source files is changed
 	GLhandleARB createSinglePassSurfaceShader(const GLLightTracker& lt,GLint* uniformLocations) const; // Creates a single-pass surface rendering shader based on current renderer settings

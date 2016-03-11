@@ -47,6 +47,8 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #include "ElevationDiff.h"
 #include "WaterTable2.h"
 
+bool depthSnapTextureSet = false;
+
 namespace {
 
 /****************
@@ -701,7 +703,6 @@ void SurfaceRenderer::setDepthImage(const Kinect::FrameBuffer& newDepthImage)
 	void SurfaceRenderer::setDepthImageSnap(const Kinect::FrameBuffer& newDepthImage)
 	{
 		depthImageSnapshot=newDepthImage;
-		depthSnapInitialized=true;
 	}
 
 void SurfaceRenderer::setAnimationTime(double newAnimationTime)
@@ -807,14 +808,18 @@ void SurfaceRenderer::glRenderElevation(GLContextData& contextData) const
 	glUniform1iARB(dataItem->elevationShaderUniforms[0],0);
 	
 	/* Set up the depth image texture: */
-	/*if(!usePreboundDepthTexture)
+	if(!usePreboundDepthTexture)
 		{
 		glActiveTextureARB(GL_TEXTURE1_ARB);
 		glBindTexture(GL_TEXTURE_RECTANGLE_ARB,dataItem->depthSnapTexture);
-		/* Upload the new depth texture: */ /*
-		glTexSubImage2D(GL_TEXTURE_RECTANGLE_ARB,0,0,0,size[0],size[1],GL_LUMINANCE,GL_FLOAT,depthImageSnapshot.getBuffer());
+		/* Upload the new depth texture: */ 
+		if(!depthSnapTextureSet)
+		{
+			glTexSubImage2D(GL_TEXTURE_RECTANGLE_ARB,0,0,0,size[0],size[1],GL_LUMINANCE,GL_FLOAT,depthImageSnapshot.getBuffer());
+			depthSnapTextureSet = true;
+		}
 
-		} */
+		} 
 	glUniform1iARB(dataItem->elevationShaderUniforms[3],0);
 
 	/* Upload the depth projection matrix: */
@@ -973,13 +978,12 @@ void SurfaceRenderer::glPrepareContourLines(GLContextData& contextData) const
 	glUniform1iARB(dataItem->elevationShaderUniforms[0],0);
 
 	/* Set up the depth image texture: */
-	/*if(!usePreboundDepthTexture)
+	if(!usePreboundDepthTexture)
 		{
 		glActiveTextureARB(GL_TEXTURE1_ARB);
 		glBindTexture(GL_TEXTURE_RECTANGLE_ARB,dataItem->depthSnapTexture);
 		glTexSubImage2D(GL_TEXTURE_RECTANGLE_ARB,0,0,0,size[0],size[1],GL_LUMINANCE,GL_FLOAT,depthImageSnapshot.getBuffer());
 		}
-	*/
 
 	glUniform1iARB(dataItem->elevationShaderUniforms[3],0);
 
