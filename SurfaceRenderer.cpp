@@ -706,6 +706,7 @@ void SurfaceRenderer::setDepthImage(const Kinect::FrameBuffer& newDepthImage)
 	void SurfaceRenderer::setDepthImageSnap(const Kinect::FrameBuffer& newDepthImage)
 	{
 		depthImageSnapshot=newDepthImage;
+		depthSnapInitialized=true;
 	}
 
 void SurfaceRenderer::setAnimationTime(double newAnimationTime)
@@ -801,7 +802,26 @@ void SurfaceRenderer::glRenderElevation(GLContextData& contextData) const
 		if(dataItem->depthTextureVersion!=depthImageVersion)
 			{
 			/* Upload the new depth texture: */
-			glTexSubImage2D(GL_TEXTURE_RECTANGLE_ARB,0,0,0,size[0],size[1],GL_LUMINANCE,GL_FLOAT,depthImage.getBuffer());
+			Kinect::FrameBuffer out = Kinect::FrameBuffer(size[0],size[1],size[0]*size[1]*sizeof(float));
+			BufferDifference(depthImage,depthImageSnapshot, out);
+			
+			float testMin = 10000.0f;
+			float testMax = -10000.0f;
+			
+			float* newDiPtr=(float*)(out.getBuffer());
+			for(unsigned int y=0; y<size[1];y++){
+				for(unsigned int x=0;x<size[0];x++,newDiPtr++){
+					if(*newDiPtr < testMin)
+						testMin = *newDiPtr;
+					if(*newDiPtr < testMax)
+						testMax = *newDiPtr;
+					*newDiPtr = *newDiPtr + 737; 
+				}
+			}
+			
+			//std::cout << "{" << testMin << "," << testMax << "}";
+			
+			glTexSubImage2D(GL_TEXTURE_RECTANGLE_ARB,0,0,0,size[0],size[1],GL_LUMINANCE,GL_FLOAT,out.getBuffer());
 
 			/* Mark the depth texture as current: */
 			dataItem->depthTextureVersion=depthImageVersion;
@@ -816,11 +836,9 @@ void SurfaceRenderer::glRenderElevation(GLContextData& contextData) const
 		glActiveTextureARB(GL_TEXTURE1_ARB);
 		glBindTexture(GL_TEXTURE_RECTANGLE_ARB,dataItem->depthSnapTexture);
 		/* Upload the new depth texture: */ 
-		if(!depthSnapTextureSet)
-		{
+
 			glTexSubImage2D(GL_TEXTURE_RECTANGLE_ARB,0,0,0,size[0],size[1],GL_LUMINANCE,GL_FLOAT,depthImageSnapshot.getBuffer());
 			depthSnapTextureSet = true;
-		}
 
 		} 
 	glUniform1iARB(dataItem->elevationShaderUniforms[3],0);
