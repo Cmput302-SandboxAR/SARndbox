@@ -706,6 +706,14 @@ void SurfaceRenderer::setDepthImage(const Kinect::FrameBuffer& newDepthImage)
 	void SurfaceRenderer::setDepthImageSnap(const Kinect::FrameBuffer& newDepthImage)
 	{
 		depthImageSnapshot=newDepthImage;
+		float* snapDiPtr=(float*)(depthImageSnapshot.getBuffer());
+		for(unsigned int y=0; y<size[1];y++){
+			for(unsigned int x=0;x<size[0];x++,snapDiPtr++){
+				std::cout << *snapDiPtr << " ";
+			}
+			std::cout << "\n";
+		}
+		
 	}
 
 void SurfaceRenderer::setAnimationTime(double newAnimationTime)
@@ -814,7 +822,7 @@ void SurfaceRenderer::glRenderElevation(GLContextData& contextData) const
 						testMin = *newDiPtr;
 					if(*newDiPtr > testMax)
 						testMax = *newDiPtr;
-					*newDiPtr = *newDiPtr + 737; 
+					*newDiPtr = *newDiPtr + 737;
 				}
 			}
 			
