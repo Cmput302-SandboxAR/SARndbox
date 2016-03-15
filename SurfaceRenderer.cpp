@@ -458,7 +458,7 @@ SurfaceRenderer::SurfaceRenderer(const unsigned int sSize[2],const SurfaceRender
 	 depthImageVersion(1),
 	 animationTime(0.0)
 	{
-		depthSnapInitialized = false;
+		depthSnapInitialized = 0;
 
 	/* Monitor the external shader source files: */
 	fileMonitor.addPath((std::string(SHADERDIR)+std::string("/SurfaceAddContourLines.fs")).c_str(),IO::FileMonitor::Modified,Misc::createFunctionCall(this,&SurfaceRenderer::shaderSourceFileChanged));
@@ -706,7 +706,6 @@ void SurfaceRenderer::setDepthImage(const Kinect::FrameBuffer& newDepthImage)
 	void SurfaceRenderer::setDepthImageSnap(const Kinect::FrameBuffer& newDepthImage)
 	{
 		depthImageSnapshot=newDepthImage;
-		depthSnapInitialized=true;
 	}
 
 void SurfaceRenderer::setAnimationTime(double newAnimationTime)
@@ -813,7 +812,7 @@ void SurfaceRenderer::glRenderElevation(GLContextData& contextData) const
 				for(unsigned int x=0;x<size[0];x++,newDiPtr++){
 					if(*newDiPtr < testMin)
 						testMin = *newDiPtr;
-					if(*newDiPtr < testMax)
+					if(*newDiPtr > testMax)
 						testMax = *newDiPtr;
 					*newDiPtr = *newDiPtr + 737; 
 				}

@@ -99,7 +99,7 @@ class SurfaceRenderer:public GLObject
 	double animationTime; // Time value for water animation
 
 	/* Flags */
-	bool depthSnapInitialized;
+	int depthSnapInitialized;
 
 	void SnapInitialized(){
 		depthSnapInitialized = true;
@@ -117,7 +117,8 @@ class SurfaceRenderer:public GLObject
 	virtual void initContext(GLContextData& contextData) const;
 
 	/* New methods: */
-	bool GetDepthSnapInitialized() { return depthSnapInitialized; }
+	int GetDepthSnapInitialized() { return depthSnapInitialized; }
+	int IncrementDepthSnapInitialized() { return depthSnapInitialized += 1; }
 	void setUsePreboundDepthTexture(bool newUsePreboundDepthTexture); // Enables or disables using a pre-bound depth texture
 	void setDrawContourLines(bool newDrawContourLines); // Enables or disables topographic contour lines
 	void setContourLineDistance(GLfloat newContourLineDistance); // Sets the elevation distance between adjacent topographic contour lines
