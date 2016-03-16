@@ -822,7 +822,7 @@ void SurfaceRenderer::glRenderElevation(GLContextData& contextData) const
 						testMin = *newDiPtr;
 					if(*newDiPtr > testMax)
 						testMax = *newDiPtr;
-					*newDiPtr = *newDiPtr + 737;
+					*newDiPtr = *newDiPtr + 738.47;
 				}
 			}
 			
