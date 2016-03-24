@@ -78,10 +78,11 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #include <Vrui/DisplayState.h>
 #include <Vrui/OpenFile.h>
 #include <Kinect/Camera.h>
+#include <IO/StandardDirectory.h>
 
 #define SAVEDEPTH 0
 
-#if SAVEDEPTH
+#if SAVEDEPTHsavedepth
 #include <Images/RGBImage.h>
 #include <Images/WriteImageFile.h>
 #endif
@@ -89,6 +90,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #include "FrameFilter.h"
 #include "SurfaceRenderer.h"
 #include "WaterTable2.h"
+
 
 /*******************************************
 Static elements of class Sandbox::WaterTool:
@@ -428,6 +430,15 @@ void Sandbox::waterAttenuationSliderCallback(GLMotif::TextFieldSlider::ValueChan
 	{
 	waterTable->setAttenuation(GLfloat(1.0-cbData->value));
 	}
+void Sandbox::saveDepthImageButtonCallback(GLMotif::FileSelectionDialog::OKCallbackData* cbData)
+	{
+	std::cout << cbData->selectedDirectory->getPath() << std::endl;
+	surfaceRenderer->saveDepthImageSnapshot();
+	}
+void Sandbox::loadDepthImageButtonCallback(Misc::CallbackData* cbData)
+	{
+	surfaceRenderer->loadDepthImageSnapshot();
+	}
 
 GLMotif::PopupMenu* Sandbox::createMainMenu(void)
 	{
@@ -442,6 +453,18 @@ GLMotif::PopupMenu* Sandbox::createMainMenu(void)
 	pauseUpdatesToggle=new GLMotif::ToggleButton("PauseUpdatesToggle",mainMenu,"Pause Topography");
 	pauseUpdatesToggle->setToggle(false);
 	pauseUpdatesToggle->getValueChangedCallbacks().add(this,&Sandbox::pauseUpdatesCallback);
+
+	IO::StandardDirectory* directory = new IO::StandardDirectory("");
+	fileSelectionHelper=new Vrui::FileSelectionHelper("depthImageSnapshot",".txt", directory);
+
+	/* Create a button to save a snapshot of depth image*/
+	GLMotif::Button* depthImageSaveButton=new GLMotif::Button("DepthImageSaveButton",mainMenu,"Save the Current Depth Image to File");
+	//depthImageSaveButton->getSelectCallbacks().add(this,&Sandbox::saveDepthImageButtonCallback);
+	fileSelectionHelper->addSaveCallback(depthImageSaveButton,this,&Sandbox::saveDepthImageButtonCallback);
+
+	/* Create a button to load a snapshot of depth image*/
+	GLMotif::Button* depthImageLoadButton=new GLMotif::Button("DepthImageLoadButton",mainMenu,"Load a Saved Depth Image from File");
+	depthImageLoadButton->getSelectCallbacks().add(this,&Sandbox::loadDepthImageButtonCallback);
 
 	if(waterTable!=0)
 		{

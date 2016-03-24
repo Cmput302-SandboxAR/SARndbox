@@ -37,6 +37,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #include <Vrui/GenericToolFactory.h>
 #include <Vrui/TransparentObject.h>
 #include <Vrui/Application.h>
+#include <Vrui/FileSelectionHelper.h>
 #include <Kinect/FrameBuffer.h>
 #include <Kinect/FrameSource.h>
 
@@ -181,6 +182,7 @@ class Sandbox:public Vrui::Application,public GLObject
 	GLMotif::TextFieldSlider* waterMaxStepsSlider;
 	GLMotif::TextField* frameRateTextField;
 	GLMotif::TextFieldSlider* waterAttenuationSlider;
+	Vrui::FileSelectionHelper* fileSelectionHelper;
 	int controlPipeFd; // File descriptor of an optional named pipe to send control commands to a running AR Sandbox
 
 	/* Private methods: */
@@ -193,6 +195,8 @@ class Sandbox:public Vrui::Application,public GLObject
 	void waterSpeedSliderCallback(GLMotif::TextFieldSlider::ValueChangedCallbackData* cbData);
 	void waterMaxStepsSliderCallback(GLMotif::TextFieldSlider::ValueChangedCallbackData* cbData);
 	void waterAttenuationSliderCallback(GLMotif::TextFieldSlider::ValueChangedCallbackData* cbData);
+	void saveDepthImageButtonCallback(GLMotif::FileSelectionDialog::OKCallbackData* cbData);
+	void loadDepthImageButtonCallback(Misc::CallbackData* cbData);
 	GLMotif::PopupMenu* createMainMenu(void);
 	GLMotif::PopupWindow* createWaterControlDialog(void);
 	bool loadHeightColorMap(const char* heightColorMapFileName); // Loads a new height color map from a file of the given name

@@ -20,6 +20,8 @@ with the Augmented Reality Sandbox; if not, write to the Free Software
 Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 ***********************************************************************/
 
+#define SNAPSHOT_FILE "snapshotfile"
+
 #include "SurfaceRenderer.h"
 
 #include <stdlib.h>
@@ -46,6 +48,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 
 #include "ElevationDiff.h"
 #include "WaterTable2.h"
+#include <fstream>
 
 bool depthSnapTextureSet = false;
 
@@ -706,15 +709,47 @@ void SurfaceRenderer::setDepthImage(const Kinect::FrameBuffer& newDepthImage)
 	void SurfaceRenderer::setDepthImageSnap(const Kinect::FrameBuffer& newDepthImage)
 	{
 		depthImageSnapshot=newDepthImage;
-		float* snapDiPtr=(float*)(depthImageSnapshot.getBuffer());
+		/*float* snapDiPtr=(float*)(depthImageSnapshot.getBuffer());
+
 		for(unsigned int y=0; y<size[1];y++){
 			for(unsigned int x=0;x<size[0];x++,snapDiPtr++){
 				std::cout << *snapDiPtr << " ";
 			}
 			std::cout << "\n";
-		}
+		}*/
 		
 	}
+
+void SurfaceRenderer::saveDepthImageSnapshot() 
+{
+
+	std::ofstream file;
+	file.open(SNAPSHOT_FILE);
+
+	float* snapDiPtr=(float*)(depthImage.getBuffer());
+	
+	for(unsigned int y=0; y<size[1];y++){
+			for(unsigned int x=0;x<size[0];x++,snapDiPtr++){
+				file << *snapDiPtr << " ";
+			}
+			file << "\n";
+		}
+}
+
+void SurfaceRenderer::loadDepthImageSnapshot()
+{
+	std::ifstream file;
+	file.open(SNAPSHOT_FILE);
+
+	float* snapDiPtr=(float*)(depthImageSnapshot.getBuffer());
+	
+	for(unsigned int y=0; y<size[1];y++){
+			for(unsigned int x=0;x<size[0];x++,snapDiPtr++){
+				file >> *snapDiPtr;
+			}
+		}
+
+}
 
 void SurfaceRenderer::setAnimationTime(double newAnimationTime)
 	{
