@@ -740,6 +740,9 @@ void SurfaceRenderer::saveDepthImageSnapshot(std::string directoryPath, const ch
 			}
 			file << "\n";
 		}
+		
+	file.close();
+	free(directoryPathString);
 }
 
 void SurfaceRenderer::loadDepthImageSnapshot(std::string directoryPath, const char* fileName)
@@ -759,6 +762,9 @@ void SurfaceRenderer::loadDepthImageSnapshot(std::string directoryPath, const ch
 				file >> *snapDiPtr;
 			}
 		}
+
+	file.close();
+	free(directoryPathString);
 
 }
 
