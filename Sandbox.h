@@ -196,7 +196,7 @@ class Sandbox:public Vrui::Application,public GLObject
 	void waterMaxStepsSliderCallback(GLMotif::TextFieldSlider::ValueChangedCallbackData* cbData);
 	void waterAttenuationSliderCallback(GLMotif::TextFieldSlider::ValueChangedCallbackData* cbData);
 	void saveDepthImageButtonCallback(GLMotif::FileSelectionDialog::OKCallbackData* cbData);
-	void loadDepthImageButtonCallback(Misc::CallbackData* cbData);
+	void loadDepthImageButtonCallback(GLMotif::FileSelectionDialog::OKCallbackData* cbData);
 	GLMotif::PopupMenu* createMainMenu(void);
 	GLMotif::PopupWindow* createWaterControlDialog(void);
 	bool loadHeightColorMap(const char* heightColorMapFileName); // Loads a new height color map from a file of the given name

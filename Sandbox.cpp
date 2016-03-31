@@ -432,12 +432,13 @@ void Sandbox::waterAttenuationSliderCallback(GLMotif::TextFieldSlider::ValueChan
 	}
 void Sandbox::saveDepthImageButtonCallback(GLMotif::FileSelectionDialog::OKCallbackData* cbData)
 	{
-	std::cout << cbData->selectedDirectory->getPath() << std::endl;
-	surfaceRenderer->saveDepthImageSnapshot();
+	//std::cout << cbData->selectedDirectory->getPath() << std::endl;
+	//std::cout << cbData->selectedFileName << std::endl;
+	surfaceRenderer->saveDepthImageSnapshot(cbData->selectedDirectory->getPath(), cbData->selectedFileName);
 	}
-void Sandbox::loadDepthImageButtonCallback(Misc::CallbackData* cbData)
+void Sandbox::loadDepthImageButtonCallback(GLMotif::FileSelectionDialog::OKCallbackData* cbData)
 	{
-	surfaceRenderer->loadDepthImageSnapshot();
+	surfaceRenderer->loadDepthImageSnapshot(cbData->selectedDirectory->getPath(), cbData->selectedFileName);
 	}
 
 GLMotif::PopupMenu* Sandbox::createMainMenu(void)
@@ -464,7 +465,8 @@ GLMotif::PopupMenu* Sandbox::createMainMenu(void)
 
 	/* Create a button to load a snapshot of depth image*/
 	GLMotif::Button* depthImageLoadButton=new GLMotif::Button("DepthImageLoadButton",mainMenu,"Load a Saved Depth Image from File");
-	depthImageLoadButton->getSelectCallbacks().add(this,&Sandbox::loadDepthImageButtonCallback);
+	//depthImageLoadButton->getSelectCallbacks().add(this,&Sandbox::loadDepthImageButtonCallback);
+	fileSelectionHelper->addSaveCallback(depthImageLoadButton,this,&Sandbox::loadDepthImageButtonCallback);
 
 	if(waterTable!=0)
 		{

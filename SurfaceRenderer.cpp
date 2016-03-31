@@ -49,6 +49,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #include "ElevationDiff.h"
 #include "WaterTable2.h"
 #include <fstream>
+#include <IO/StandardDirectory.h>
 
 bool depthSnapTextureSet = false;
 
@@ -720,11 +721,16 @@ void SurfaceRenderer::setDepthImage(const Kinect::FrameBuffer& newDepthImage)
 		
 	}
 
-void SurfaceRenderer::saveDepthImageSnapshot() 
+void SurfaceRenderer::saveDepthImageSnapshot(std::string directoryPath, const char* fileName) 
 {
 
 	std::ofstream file;
-	file.open(SNAPSHOT_FILE);
+	char* directoryPathString = (char*)malloc(sizeof(char)*(strlen(directoryPath.c_str())+strlen(fileName)+2));
+	strcpy(directoryPathString, directoryPath.c_str());
+	strcat(directoryPathString, "/");
+	strcat(directoryPathString, fileName);
+	//std::cout << directoryPathString << std::endl;
+	file.open(directoryPathString);
 
 	float* snapDiPtr=(float*)(depthImage.getBuffer());
 	
@@ -736,10 +742,15 @@ void SurfaceRenderer::saveDepthImageSnapshot()
 		}
 }
 
-void SurfaceRenderer::loadDepthImageSnapshot()
+void SurfaceRenderer::loadDepthImageSnapshot(std::string directoryPath, const char* fileName)
 {
 	std::ifstream file;
-	file.open(SNAPSHOT_FILE);
+	char* directoryPathString = (char*)malloc(sizeof(char)*(strlen(directoryPath.c_str())+strlen(fileName)+2));
+	strcpy(directoryPathString, directoryPath.c_str());
+	strcat(directoryPathString, "/");
+	strcat(directoryPathString, fileName);
+	//std::cout << directoryPathString << std::endl;
+	file.open(directoryPathString);
 
 	float* snapDiPtr=(float*)(depthImageSnapshot.getBuffer());
 	
