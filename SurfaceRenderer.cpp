@@ -768,6 +768,11 @@ void SurfaceRenderer::loadDepthImageSnapshot(std::string directoryPath, const ch
 
 }
 
+void SurfaceRenderer::printDepthImageAccuracy()
+{
+	std::cout << BufferError(depthImage,depthImageSnapshot) << std::endl;
+}
+
 void SurfaceRenderer::setAnimationTime(double newAnimationTime)
 	{
 	/* Set the new animation time: */

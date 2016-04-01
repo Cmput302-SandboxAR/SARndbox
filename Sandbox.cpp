@@ -441,6 +441,11 @@ void Sandbox::loadDepthImageButtonCallback(GLMotif::FileSelectionDialog::OKCallb
 	surfaceRenderer->loadDepthImageSnapshot(cbData->selectedDirectory->getPath(), cbData->selectedFileName);
 	}
 
+void Sandbox::showDepthImageAccuracyButtonCallback(Misc::CallbackData* cbData)
+	{
+	surfaceRenderer->printDepthImageAccuracy();
+	}
+
 GLMotif::PopupMenu* Sandbox::createMainMenu(void)
 	{
 	/* Create a popup shell to hold the main menu: */
@@ -467,6 +472,11 @@ GLMotif::PopupMenu* Sandbox::createMainMenu(void)
 	GLMotif::Button* depthImageLoadButton=new GLMotif::Button("DepthImageLoadButton",mainMenu,"Load a Saved Depth Image from File");
 	//depthImageLoadButton->getSelectCallbacks().add(this,&Sandbox::loadDepthImageButtonCallback);
 	fileSelectionHelper->addSaveCallback(depthImageLoadButton,this,&Sandbox::loadDepthImageButtonCallback);
+
+
+	/* Create a button to output the accuracy of the contour matching */
+	GLMotif::Button* depthImageAccuracyButton=new GLMotif::Button("DepthImageAccuracyButton",mainMenu,"Print the accuracy");
+	depthImageAccuracyButton->getSelectCallbacks().add(this,&Sandbox::showDepthImageAccuracyButtonCallback);
 
 	if(waterTable!=0)
 		{
