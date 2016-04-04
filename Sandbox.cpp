@@ -325,8 +325,8 @@ Sandbox::DataItem::DataItem(void)
 	/* Initialize all required extensions: */
 	GLEXTFramebufferObject::initExtension();
 	GLARBTextureRectangle::initExtension();
-	GLARBTextureFloat::initExtension();
-	GLARBTextureRg::initExtension();
+	// GLARBTextureFloat::initExtension();
+	// GLARBTextureRg::initExtension();
 	GLARBDepthTexture::initExtension();
 	GLARBShaderObjects::initExtension();
 	GLARBVertexShader::initExtension();
@@ -659,6 +659,7 @@ Sandbox::Sandbox(int& argc,char**& argv)
 	wtSize[1]=480U;
 	GLfloat waterOpacity=2.0f;
 	bool renderWaterSurface=false;
+	bool renderWater=true;
 	double rainElevationMin=-1000.0;
 	double rainElevationMax=1000.0;
 	double evaporationRate=0.0;
@@ -768,6 +769,8 @@ Sandbox::Sandbox(int& argc,char**& argv)
 				useHeightMap=true;
 			else if(strcasecmp(argv[i]+1,"rws")==0)
 				renderWaterSurface=true;
+			else if(strcasecmp(argv[i]+1,"nowater")==0)
+				renderWater=false;
 			else if(strcasecmp(argv[i]+1,"cp")==0)
 				{
 				++i;
@@ -848,6 +851,8 @@ Sandbox::Sandbox(int& argc,char**& argv)
 		std::cout<<"     Renders water surface as geometric surface"<<std::endl;
 		std::cout<<"  -cp <control pipe name>"<<std::endl;
 		std::cout<<"     Sets the name of a named POSIX pipe from which to read control commands"<<std::endl;
+		std::cout<<"  -nowater"<<std::endl;
+		std::cout<<"     Disables all water rendering"<<std::endl;
 		}
 
 	/* Enable background USB event handling: */
@@ -955,15 +960,18 @@ Sandbox::Sandbox(int& argc,char**& argv)
 		bbox.addPoint(basePlane.project(basePlaneCorners[i])+basePlane.getNormal()*elevationMax);
 		}
 
-	/* Initialize the water flow simulator: */
-	waterTable=new WaterTable2(wtSize[0],wtSize[1],basePlane,basePlaneCorners);
-	waterTable->setElevationRange(elevationMin,rainElevationMax);
-	waterTable->setWaterDeposit(evaporationRate);
+	if(renderWater)
+		{
+			/* Initialize the water flow simulator: */
+			waterTable=new WaterTable2(wtSize[0],wtSize[1],basePlane,basePlaneCorners);
+			waterTable->setElevationRange(elevationMin,rainElevationMax);
+			waterTable->setWaterDeposit(evaporationRate);
 
-	/* Register a render function with the water table: */
-	addWaterFunction=Misc::createFunctionCall(this,&Sandbox::addWater);
-	waterTable->addRenderFunction(addWaterFunction);
-	addWaterFunctionRegistered=true;
+			/* Register a render function with the water table: */
+			addWaterFunction=Misc::createFunctionCall(this,&Sandbox::addWater);
+			waterTable->addRenderFunction(addWaterFunction);
+			addWaterFunctionRegistered=true;
+		}
 
 	/* Initialize the surface renderer: */
 	surfaceRenderer=new SurfaceRenderer(frameSize,cameraIps.depthProjection,basePlane);
@@ -994,7 +1002,7 @@ Sandbox::Sandbox(int& argc,char**& argv)
 			}
 		else
 			{
-			surfaceRenderer->setWaterTable(NULL);
+			surfaceRenderer->setWaterTable(waterTable);
 			surfaceRenderer->setAdvectWaterTexture(true);
 			surfaceRenderer->setWaterOpacity(waterOpacity);
 			}
@@ -1072,7 +1080,7 @@ void Sandbox::frame(void)
 		} else if(surfaceRenderer->GetDepthSnapInitialized() < 10) {
 			surfaceRenderer->IncrementDepthSnapInitialized();
 		}
-		
+
 		surfaceRenderer->setDepthImage(filteredFrames.getLockedValue());
 		}
 
