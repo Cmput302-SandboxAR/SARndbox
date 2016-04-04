@@ -19,7 +19,7 @@ make
 make install
 
 cd ~/src/Vrui-3.1
-Change line 68 in SystemDefinitions to 'SYSTEM_PACKAGE_SEARCH_PATHS = /usr/local /usr /cshome/[your csid]/bin'
+Change line 68 in /BuildRoot/SystemDefinitions to 'SYSTEM_PACKAGE_SEARCH_PATHS = /usr/local /usr /cshome/[your csid]/bin'
 Change line 156 in Packages.System to 'LIBUSB1_LIBDIR  = -L$(LIBUSB1_BASEDIR)/lib'
 make
 make install

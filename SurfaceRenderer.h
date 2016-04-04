@@ -30,6 +30,7 @@ Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA 02111-1307 USA
 #include <GL/Extensions/GLARBShaderObjects.h>
 #include <GL/GLObject.h>
 #include <Kinect/FrameBuffer.h>
+#include <IO/StandardDirectory.h>
 
 /* Forward declarations: */
 class GLLightTracker;
@@ -42,20 +43,20 @@ class SurfaceRenderer:public GLObject
 	typedef double Scalar;
 	typedef Geometry::Plane<Scalar,3> Plane; // Type for planes in camera space
 	typedef Geometry::ProjectiveTransformation<Scalar,3> PTransform; // Type for projective transformations
-	
+
 	private:
 	struct DataItem:public GLObject::DataItem
 		{
-		/* Elements: */
 		public:
 		GLuint vertexBuffer; // ID of vertex buffer object holding surface's template vertices
 		GLuint indexBuffer; // ID of index buffer object holding surface's triangles
 		GLuint depthTexture; // ID of texture object holding surface's vertex elevations in depth image space
 		unsigned int depthTextureVersion; // Version number of the depth image texture
+		GLuint depthSnapTexture; // ID of texture object holding surface's vertex elevations in depth image space
 		GLhandleARB depthShader; // Shader program to render the surface's depth only
 		GLint depthShaderUniforms[2]; // Locations of the depth shader's uniform variables
 		GLhandleARB elevationShader; // Shader program to render the surface's elevation relative to a plane
-		GLint elevationShaderUniforms[3]; // Locations of the elevation shader's uniform variables
+		GLint elevationShaderUniforms[4]; // Locations of the elevation shader's uniform variables
 		GLuint contourLineFramebufferSize[2]; // Current width and height of contour line rendering frame buffer
 		GLuint contourLineFramebufferObject; // Frame buffer object used to render topographic contour lines
 		GLuint contourLineDepthBufferObject; // Depth render buffer for topographic contour line frame buffer
@@ -68,12 +69,12 @@ class SurfaceRenderer:public GLObject
 		GLint globalAmbientHeightMapShaderUniforms[10]; // Locations of the global ambient height map shader's uniform variables
 		GLhandleARB shadowedIlluminatedHeightMapShader; // Shader program to render the surface using illumination with shadows and a height color map
 		GLint shadowedIlluminatedHeightMapShaderUniforms[13]; // Locations of the shadowed illuminated height map shader's uniform variables
-		
+
 		/* Constructors and destructors: */
 		DataItem(void);
 		virtual ~DataItem(void);
 		};
-	
+
 	/* Elements: */
 	IO::FileMonitor fileMonitor; // Monitor to watch the renderer's external shader source files
 	unsigned int size[2]; // Width and height of the depth image
@@ -93,21 +94,32 @@ class SurfaceRenderer:public GLObject
 	unsigned int surfaceSettingsVersion; // Version number of surface settings to invalidate surface rendering shader on changes
 	GLfloat waterOpacity; // Scaling factor for water opacity
 	Kinect::FrameBuffer depthImage; // The most recent float-pixel depth image
+	Kinect::FrameBuffer depthImageSnapshot;
+	Kinect::FrameBuffer tmpBuffer;
 	unsigned int depthImageVersion; // Version number of the depth image
 	double animationTime; // Time value for water animation
-	
+
+	/* Flags */
+	int depthSnapInitialized;
+
+	void SnapInitialized(){
+		depthSnapInitialized = true;
+	}
+
 	/* Private methods: */
 	void shaderSourceFileChanged(const IO::FileMonitor::Event& event); // Callback called when one of the external shader source files is changed
 	GLhandleARB createSinglePassSurfaceShader(const GLLightTracker& lt,GLint* uniformLocations) const; // Creates a single-pass surface rendering shader based on current renderer settings
-	
+
 	/* Constructors and destructors: */
 	public:
 	SurfaceRenderer(const unsigned int sSize[2],const PTransform& sDepthProjection,const Plane& sBasePlane); // Creates a renderer for the given image size, depth projection, and base plane
-	
+
 	/* Methods from GLObject: */
 	virtual void initContext(GLContextData& contextData) const;
-	
+
 	/* New methods: */
+	int GetDepthSnapInitialized() { return depthSnapInitialized; }
+	int IncrementDepthSnapInitialized() { return depthSnapInitialized += 1; }
 	void setUsePreboundDepthTexture(bool newUsePreboundDepthTexture); // Enables or disables using a pre-bound depth texture
 	void setDrawContourLines(bool newDrawContourLines); // Enables or disables topographic contour lines
 	void setContourLineDistance(GLfloat newContourLineDistance); // Sets the elevation distance between adjacent topographic contour lines
@@ -118,6 +130,10 @@ class SurfaceRenderer:public GLObject
 	void setAdvectWaterTexture(bool newAdvectWaterTexture); // Sets the water texture coordinate advection flag
 	void setWaterOpacity(GLfloat newWaterOpacity); // Sets the water opacity factor
 	void setDepthImage(const Kinect::FrameBuffer& newDepthImage); // Sets a new depth image for subsequent surface rendering
+	void setDepthImageSnap(const Kinect::FrameBuffer& newDepthImage); // Sets a snapshot of the initial depth image
+	void saveDepthImageSnapshot(std::string directoryPath, const char* fileName); //Saves a snapshot of the current depth image
+	void loadDepthImageSnapshot(std::string directoryPath, const char* fileName); //Load a snapshot of a saved depth image
+	void printDepthImageAccuracy();
 	void setAnimationTime(double newAnimationTime); // Sets the time for water animation in seconds
 	void glRenderDepthOnly(const PTransform& modelviewProjection,GLContextData& contextData) const; // Renders the surface into a pure depth buffer, for early z culling or shadow passes etc.
 	void glRenderElevation(GLContextData& contextData) const; // Renders the surface's elevation relative to the base plane into the current frame buffer
