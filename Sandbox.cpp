@@ -461,7 +461,7 @@ GLMotif::PopupMenu* Sandbox::createMainMenu(void)
 	pauseUpdatesToggle->getValueChangedCallbacks().add(this,&Sandbox::pauseUpdatesCallback);
 
 	IO::StandardDirectory* directory = new IO::StandardDirectory("");
-	fileSelectionHelper=new Vrui::FileSelectionHelper("depthImageSnapshot",".txt", directory);
+	fileSelectionHelper=new Vrui::FileSelectionHelper("depthImageSnapshot",".", directory);
 
 	/* Create a button to save a snapshot of depth image*/
 	GLMotif::Button* depthImageSaveButton=new GLMotif::Button("DepthImageSaveButton",mainMenu,"Save the Current Depth Image to File");
