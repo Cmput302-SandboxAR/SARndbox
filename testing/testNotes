@@ -46,4 +46,53 @@ Test Subject 2: Gemma Marcinkoski
 			Average diff: 1.82568
 			Total diff: 560850
 
+Second day
 
+Test Subject 3: Joel
+	Original:
+		Time: 2:45
+		Accuracy: 
+			Max diff: 53.6547
+			Average diff: 3.66877
+			Total diff: 1.12705e+06
+	Enhanced:
+		Time: 4:04
+		Accuracy:
+			Max diff: 52.611
+			Average diff: 2.64588
+			Total diff: 812813
+
+Did four other people on survey here.
+
+Test Subject 4: Cody
+	Original:
+		Time: 2:26
+		Accuracy:
+			Max diff: 54.431
+			Average diff: 4.37359
+			Total diff: 1.34357e+06
+
+	Enhanced:
+		Time: 3:20
+		Accuracy:
+			Max diff: 54.0964
+			Average diff: 4.14428
+			Total diff: 1.27312e+06
+
+Test Subject 5: Clark
+	Original:
+		Time: 3:51
+		Accuracy:
+			Max diff: 53.5964
+			Average diff: 3.98368
+			Total diff: 1.22379e+06
+
+
+	Enhanced:
+		Time: 5:00
+		Accuracy: 
+			Max diff: 53.4368
+			Average diff: 3.80195
+			Total diff: 1.16796e+06
+
+			
