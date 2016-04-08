@@ -106,6 +106,8 @@ class SurfaceRenderer:public GLObject
 		depthSnapInitialized = true;
 	}
 
+	bool showDifference; // Flag for whether to calculate difference values or just use elevation
+
 	/* Private methods: */
 	void shaderSourceFileChanged(const IO::FileMonitor::Event& event); // Callback called when one of the external shader source files is changed
 	GLhandleARB createSinglePassSurfaceShader(const GLLightTracker& lt,GLint* uniformLocations) const; // Creates a single-pass surface rendering shader based on current renderer settings
@@ -133,7 +135,8 @@ class SurfaceRenderer:public GLObject
 	void setDepthImageSnap(const Kinect::FrameBuffer& newDepthImage); // Sets a snapshot of the initial depth image
 	void saveDepthImageSnapshot(std::string directoryPath, const char* fileName); //Saves a snapshot of the current depth image
 	void loadDepthImageSnapshot(std::string directoryPath, const char* fileName); //Load a snapshot of a saved depth image
-	void printDepthImageAccuracy();
+	void printDepthImageAccuracy(); // Print accuracy values
+	void toggleDifferenceCalc(); // Toggle showDifference flag for contour matching
 	void setAnimationTime(double newAnimationTime); // Sets the time for water animation in seconds
 	void glRenderDepthOnly(const PTransform& modelviewProjection,GLContextData& contextData) const; // Renders the surface into a pure depth buffer, for early z culling or shadow passes etc.
 	void glRenderElevation(GLContextData& contextData) const; // Renders the surface's elevation relative to the base plane into the current frame buffer

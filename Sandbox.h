@@ -174,6 +174,10 @@ class Sandbox:public Vrui::Application,public GLObject
 	bool hillshade; // Flag whether to use augmented reality hill shading
 	bool useShadows; // Flag whether to use shadows in augmented reality hill shading
 	bool useHeightMap; // Flag whether to color map the surface by elevation
+	std::string heightColorMapFileName; // File name for height color map
+	std::string heightColorMapDiffFileName; // File name for difference height color map
+	double elevationMin; // minimum elevation
+	double elevationMax; // maximum elevation
 	SurfaceRenderer* waterRenderer; // A second surface renderer to render the water surface directly
 	Vrui::Lightsource* sun; // An external fixed light source
 	GLMotif::PopupMenu* mainMenu;

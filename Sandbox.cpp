@@ -414,8 +414,24 @@ void Sandbox::pauseUpdatesCallback(GLMotif::ToggleButton::ValueChangedCallbackDa
 void Sandbox::toggleContourMatching(GLMotif::ToggleButton::ValueChangedCallbackData* cbData)
 	{
 	contourMatching=cbData->set;
-	std::cout << "GOT to toggleContourMatching" << std::endl;
-	std::cout << "contourMatching is now: " << contourMatching << std::endl;
+
+	/* Load the appropriate height color map: */
+	if(contourMatching) {
+		if(!loadHeightColorMap(heightColorMapDiffFileName.c_str()))
+			Misc::throwStdErr("Sandbox::Sandbox: Format error in height color map %s",heightColorMapDiffFileName.c_str());
+	} else {
+		if(!loadHeightColorMap(heightColorMapFileName.c_str()))
+			Misc::throwStdErr("Sandbox::Sandbox: Format error in height color map %s",heightColorMapFileName.c_str());
+	}
+
+	/* Limit the valid elevation range to the extent of the height color map: */
+	if(elevationMin<heightMap.getScalarRangeMin())
+		elevationMin=heightMap.getScalarRangeMin();
+	if(elevationMax>heightMap.getScalarRangeMax())
+		elevationMax=heightMap.getScalarRangeMax();
+
+	/* Toggle flag for elevation difference calculation */
+	surfaceRenderer->toggleDifferenceCalc();
 	}
 
 void Sandbox::showWaterControlDialogCallback(Misc::CallbackData* cbData)
@@ -472,7 +488,7 @@ GLMotif::PopupMenu* Sandbox::createMainMenu(void)
 
 	/* Create a button to toggle contour matching */
 	toggleContourMatchingButton=new GLMotif::ToggleButton("toggleContourMatching",mainMenu,"Toggle Contour Matching");
-	toggleContourMatchingButton->setToggle(false);
+	toggleContourMatchingButton->setToggle(true);
 	toggleContourMatchingButton->getValueChangedCallbacks().add(this,&Sandbox::toggleContourMatching);
 
 	/* Create a button to save a snapshot of depth image */
@@ -652,11 +668,14 @@ Sandbox::Sandbox(int& argc,char**& argv)
 	sandboxLayoutFileName.push_back('/');
 	sandboxLayoutFileName.append("BoxLayout.txt");
 	bool useHeightMap=true;
-	std::string heightColorMapFileName=CONFIGDIR;
+	heightColorMapFileName=CONFIGDIR;
 	heightColorMapFileName.push_back('/');
 	heightColorMapFileName.append(DEFAULTHEIGHTCOLORMAPNAME);
-	double elevationMin=-1000.0;
-	double elevationMax=1000.0;
+	heightColorMapDiffFileName=CONFIGDIR;
+	heightColorMapDiffFileName.push_back('/');
+	heightColorMapDiffFileName.append("HeightColorMapDiff.cpt");
+	elevationMin=-1000.0;
+	elevationMax=1000.0;
 	unsigned int validMin=0;
 	unsigned int validMax=2047;
 	int numAveragingSlots=30;
@@ -894,9 +913,14 @@ Sandbox::Sandbox(int& argc,char**& argv)
 		}
 	}
 
-	/* Load the height color map: */
-	if(!loadHeightColorMap(heightColorMapFileName.c_str()))
-		Misc::throwStdErr("Sandbox::Sandbox: Format error in height color map %s",heightColorMapFileName.c_str());
+	/* Load the appropriate height color map: */
+	if(contourMatching) {
+		if(!loadHeightColorMap(heightColorMapDiffFileName.c_str()))
+			Misc::throwStdErr("Sandbox::Sandbox: Format error in height color map %s",heightColorMapDiffFileName.c_str());
+	} else {
+		if(!loadHeightColorMap(heightColorMapFileName.c_str()))
+			Misc::throwStdErr("Sandbox::Sandbox: Format error in height color map %s",heightColorMapFileName.c_str());
+	}
 
 	/* Limit the valid elevation range to the extent of the height color map: */
 	if(elevationMin<heightMap.getScalarRangeMin())
