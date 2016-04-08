@@ -411,6 +411,13 @@ void Sandbox::pauseUpdatesCallback(GLMotif::ToggleButton::ValueChangedCallbackDa
 	pauseUpdates=cbData->set;
 	}
 
+void Sandbox::toggleContourMatching(GLMotif::ToggleButton::ValueChangedCallbackData* cbData)
+	{
+	contourMatching=cbData->set;
+	std::cout << "GOT to toggleContourMatching" << std::endl;
+	std::cout << "contourMatching is now: " << contourMatching << std::endl;
+	}
+
 void Sandbox::showWaterControlDialogCallback(Misc::CallbackData* cbData)
 	{
 	Vrui::popupPrimaryWidget(waterControlDialog);
@@ -463,16 +470,20 @@ GLMotif::PopupMenu* Sandbox::createMainMenu(void)
 	IO::StandardDirectory* directory = new IO::StandardDirectory("");
 	fileSelectionHelper=new Vrui::FileSelectionHelper("depthImageSnapshot",".", directory);
 
-	/* Create a button to save a snapshot of depth image*/
+	/* Create a button to toggle contour matching */
+	toggleContourMatchingButton=new GLMotif::ToggleButton("toggleContourMatching",mainMenu,"Toggle Contour Matching");
+	toggleContourMatchingButton->setToggle(false);
+	toggleContourMatchingButton->getValueChangedCallbacks().add(this,&Sandbox::toggleContourMatching);
+
+	/* Create a button to save a snapshot of depth image */
 	GLMotif::Button* depthImageSaveButton=new GLMotif::Button("DepthImageSaveButton",mainMenu,"Save the Current Depth Image to File");
 	//depthImageSaveButton->getSelectCallbacks().add(this,&Sandbox::saveDepthImageButtonCallback);
 	fileSelectionHelper->addSaveCallback(depthImageSaveButton,this,&Sandbox::saveDepthImageButtonCallback);
 
-	/* Create a button to load a snapshot of depth image*/
+	/* Create a button to load a snapshot of depth image */
 	GLMotif::Button* depthImageLoadButton=new GLMotif::Button("DepthImageLoadButton",mainMenu,"Load a Saved Depth Image from File");
 	//depthImageLoadButton->getSelectCallbacks().add(this,&Sandbox::loadDepthImageButtonCallback);
 	fileSelectionHelper->addSaveCallback(depthImageLoadButton,this,&Sandbox::loadDepthImageButtonCallback);
-
 
 	/* Create a button to output the accuracy of the contour matching */
 	GLMotif::Button* depthImageAccuracyButton=new GLMotif::Button("DepthImageAccuracyButton",mainMenu,"Print the accuracy");
@@ -913,20 +924,20 @@ Sandbox::Sandbox(int& argc,char**& argv)
 	if(rainElevationMax<rainElevationMin)
 		rainElevationMax=rainElevationMin;
 
-	/* Create the rain maker object: */
-	rainMaker=new RainMaker(frameSize,camera->getActualFrameSize(Kinect::FrameSource::COLOR),cameraIps.depthProjection,cameraIps.colorProjection,basePlane,rainElevationMin,rainElevationMax,20);
-	rainMaker->setDepthIsFloat(true);
-	rainMaker->setOutputBlobsFunction(Misc::createFunctionCall(this,&Sandbox::receiveRainObjects));
+		/* Create the rain maker object: */
+		rainMaker=new RainMaker(frameSize,camera->getActualFrameSize(Kinect::FrameSource::COLOR),cameraIps.depthProjection,cameraIps.colorProjection,basePlane,rainElevationMin,rainElevationMax,20);
+		rainMaker->setDepthIsFloat(true);
+		rainMaker->setOutputBlobsFunction(Misc::createFunctionCall(this,&Sandbox::receiveRainObjects));
 
-	/* Create a second frame filter for the rain maker: */
-	rmFrameFilter=new FrameFilter(frameSize,10,cameraIps.depthProjection,basePlane);
-	rmFrameFilter->setDepthCorrection(*depthCorrection);
-	rmFrameFilter->setValidElevationInterval(cameraIps.depthProjection,basePlane,rainElevationMin,rainElevationMax);
-	rmFrameFilter->setStableParameters(5,3);
-	rmFrameFilter->setRetainValids(false);
-	rmFrameFilter->setInstableValue(2047.0f);
-	rmFrameFilter->setSpatialFilter(false);
-	rmFrameFilter->setOutputFrameFunction(Misc::createFunctionCall(rainMaker,&RainMaker::receiveRawDepthFrame));
+		/* Create a second frame filter for the rain maker: */
+		rmFrameFilter=new FrameFilter(frameSize,10,cameraIps.depthProjection,basePlane);
+		rmFrameFilter->setDepthCorrection(*depthCorrection);
+		rmFrameFilter->setValidElevationInterval(cameraIps.depthProjection,basePlane,rainElevationMin,rainElevationMax);
+		rmFrameFilter->setStableParameters(5,3);
+		rmFrameFilter->setRetainValids(false);
+		rmFrameFilter->setInstableValue(2047.0f);
+		rmFrameFilter->setSpatialFilter(false);
+		rmFrameFilter->setOutputFrameFunction(Misc::createFunctionCall(rainMaker,&RainMaker::receiveRawDepthFrame));
 
 
 	/* Start streaming depth frames: */

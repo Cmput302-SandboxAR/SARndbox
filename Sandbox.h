@@ -153,6 +153,7 @@ class Sandbox:public Vrui::Application,public GLObject
 	Kinect::FrameSource::IntrinsicParameters cameraIps; // Intrinsic parameters of the Kinect camera
 	FrameFilter* frameFilter; // Processing object to filter raw depth frames from the Kinect camera
 	bool pauseUpdates; // Pauses updates of the topography
+	bool contourMatching; // Show difference between two topographies
 	Threads::TripleBuffer<Kinect::FrameBuffer> filteredFrames; // Triple buffer for incoming filtered depth frames
 	PTransform projectorTransform; // The calibrated projector transformation matrix
 	GLMaterial surfaceMaterial; // Material properties to render the surface
@@ -177,6 +178,7 @@ class Sandbox:public Vrui::Application,public GLObject
 	Vrui::Lightsource* sun; // An external fixed light source
 	GLMotif::PopupMenu* mainMenu;
 	GLMotif::ToggleButton* pauseUpdatesToggle;
+	GLMotif::ToggleButton* toggleContourMatchingButton;
 	GLMotif::PopupWindow* waterControlDialog;
 	GLMotif::TextFieldSlider* waterSpeedSlider;
 	GLMotif::TextFieldSlider* waterMaxStepsSlider;
@@ -191,6 +193,7 @@ class Sandbox:public Vrui::Application,public GLObject
 	void receiveRainObjects(const RainMaker::BlobList& newRainObjects); // Callback receiving extracted rain objects from the rain maker
 	void addWater(GLContextData& contextData) const; // Function to render geometry that adds water to the water table
 	void pauseUpdatesCallback(GLMotif::ToggleButton::ValueChangedCallbackData* cbData);
+	void toggleContourMatching(GLMotif::ToggleButton::ValueChangedCallbackData* cbData);
 	void showWaterControlDialogCallback(Misc::CallbackData* cbData);
 	void waterSpeedSliderCallback(GLMotif::TextFieldSlider::ValueChangedCallbackData* cbData);
 	void waterMaxStepsSliderCallback(GLMotif::TextFieldSlider::ValueChangedCallbackData* cbData);
