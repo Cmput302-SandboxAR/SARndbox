@@ -670,7 +670,6 @@ Sandbox::Sandbox(int& argc,char**& argv)
 	wtSize[1]=480U;
 	GLfloat waterOpacity=2.0f;
 	bool renderWaterSurface=false;
-	bool renderWater=true;
 	double rainElevationMin=-1000.0;
 	double rainElevationMax=1000.0;
 	double evaporationRate=0.0;
@@ -780,8 +779,6 @@ Sandbox::Sandbox(int& argc,char**& argv)
 				useHeightMap=true;
 			else if(strcasecmp(argv[i]+1,"rws")==0)
 				renderWaterSurface=true;
-			else if(strcasecmp(argv[i]+1,"nowater")==0)
-				renderWater=false;
 			else if(strcasecmp(argv[i]+1,"cp")==0)
 				{
 				++i;
@@ -862,8 +859,6 @@ Sandbox::Sandbox(int& argc,char**& argv)
 		std::cout<<"     Renders water surface as geometric surface"<<std::endl;
 		std::cout<<"  -cp <control pipe name>"<<std::endl;
 		std::cout<<"     Sets the name of a named POSIX pipe from which to read control commands"<<std::endl;
-		std::cout<<"  -nowater"<<std::endl;
-		std::cout<<"     Disables all water rendering"<<std::endl;
 		}
 
 	/* Enable background USB event handling: */
@@ -924,20 +919,20 @@ Sandbox::Sandbox(int& argc,char**& argv)
 	if(rainElevationMax<rainElevationMin)
 		rainElevationMax=rainElevationMin;
 
-		/* Create the rain maker object: */
-		rainMaker=new RainMaker(frameSize,camera->getActualFrameSize(Kinect::FrameSource::COLOR),cameraIps.depthProjection,cameraIps.colorProjection,basePlane,rainElevationMin,rainElevationMax,20);
-		rainMaker->setDepthIsFloat(true);
-		rainMaker->setOutputBlobsFunction(Misc::createFunctionCall(this,&Sandbox::receiveRainObjects));
+	/* Create the rain maker object: */
+	rainMaker=new RainMaker(frameSize,camera->getActualFrameSize(Kinect::FrameSource::COLOR),cameraIps.depthProjection,cameraIps.colorProjection,basePlane,rainElevationMin,rainElevationMax,20);
+	rainMaker->setDepthIsFloat(true);
+	rainMaker->setOutputBlobsFunction(Misc::createFunctionCall(this,&Sandbox::receiveRainObjects));
 
-		/* Create a second frame filter for the rain maker: */
-		rmFrameFilter=new FrameFilter(frameSize,10,cameraIps.depthProjection,basePlane);
-		rmFrameFilter->setDepthCorrection(*depthCorrection);
-		rmFrameFilter->setValidElevationInterval(cameraIps.depthProjection,basePlane,rainElevationMin,rainElevationMax);
-		rmFrameFilter->setStableParameters(5,3);
-		rmFrameFilter->setRetainValids(false);
-		rmFrameFilter->setInstableValue(2047.0f);
-		rmFrameFilter->setSpatialFilter(false);
-		rmFrameFilter->setOutputFrameFunction(Misc::createFunctionCall(rainMaker,&RainMaker::receiveRawDepthFrame));
+	/* Create a second frame filter for the rain maker: */
+	rmFrameFilter=new FrameFilter(frameSize,10,cameraIps.depthProjection,basePlane);
+	rmFrameFilter->setDepthCorrection(*depthCorrection);
+	rmFrameFilter->setValidElevationInterval(cameraIps.depthProjection,basePlane,rainElevationMin,rainElevationMax);
+	rmFrameFilter->setStableParameters(5,3);
+	rmFrameFilter->setRetainValids(false);
+	rmFrameFilter->setInstableValue(2047.0f);
+	rmFrameFilter->setSpatialFilter(false);
+	rmFrameFilter->setOutputFrameFunction(Misc::createFunctionCall(rainMaker,&RainMaker::receiveRawDepthFrame));
 
 
 	/* Start streaming depth frames: */
@@ -972,18 +967,15 @@ Sandbox::Sandbox(int& argc,char**& argv)
 		bbox.addPoint(basePlane.project(basePlaneCorners[i])+basePlane.getNormal()*elevationMax);
 		}
 
-	if(renderWater)
-		{
-		/* Initialize the water flow simulator: */
-		waterTable=new WaterTable2(wtSize[0],wtSize[1],basePlane,basePlaneCorners);
-		waterTable->setElevationRange(elevationMin,rainElevationMax);
-		waterTable->setWaterDeposit(evaporationRate);
+	/* Initialize the water flow simulator: */
+	waterTable=new WaterTable2(wtSize[0],wtSize[1],basePlane,basePlaneCorners);
+	waterTable->setElevationRange(elevationMin,rainElevationMax);
+	waterTable->setWaterDeposit(evaporationRate);
 
-		/* Register a render function with the water table: */
-		addWaterFunction=Misc::createFunctionCall(this,&Sandbox::addWater);
-		waterTable->addRenderFunction(addWaterFunction);
-		addWaterFunctionRegistered=true;
-		}
+	/* Register a render function with the water table: */
+	addWaterFunction=Misc::createFunctionCall(this,&Sandbox::addWater);
+	waterTable->addRenderFunction(addWaterFunction);
+	addWaterFunctionRegistered=true;
 
 	/* Initialize the surface renderer: */
 	surfaceRenderer=new SurfaceRenderer(frameSize,cameraIps.depthProjection,basePlane);
