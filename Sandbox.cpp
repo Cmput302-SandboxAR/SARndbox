@@ -913,23 +913,21 @@ Sandbox::Sandbox(int& argc,char**& argv)
 	if(rainElevationMax<rainElevationMin)
 		rainElevationMax=rainElevationMin;
 
-	if(renderWater)
-		{
-		/* Create the rain maker object: */
-		rainMaker=new RainMaker(frameSize,camera->getActualFrameSize(Kinect::FrameSource::COLOR),cameraIps.depthProjection,cameraIps.colorProjection,basePlane,rainElevationMin,rainElevationMax,20);
-		rainMaker->setDepthIsFloat(true);
-		rainMaker->setOutputBlobsFunction(Misc::createFunctionCall(this,&Sandbox::receiveRainObjects));
+	/* Create the rain maker object: */
+	rainMaker=new RainMaker(frameSize,camera->getActualFrameSize(Kinect::FrameSource::COLOR),cameraIps.depthProjection,cameraIps.colorProjection,basePlane,rainElevationMin,rainElevationMax,20);
+	rainMaker->setDepthIsFloat(true);
+	rainMaker->setOutputBlobsFunction(Misc::createFunctionCall(this,&Sandbox::receiveRainObjects));
 
-		/* Create a second frame filter for the rain maker: */
-		rmFrameFilter=new FrameFilter(frameSize,10,cameraIps.depthProjection,basePlane);
-		rmFrameFilter->setDepthCorrection(*depthCorrection);
-		rmFrameFilter->setValidElevationInterval(cameraIps.depthProjection,basePlane,rainElevationMin,rainElevationMax);
-		rmFrameFilter->setStableParameters(5,3);
-		rmFrameFilter->setRetainValids(false);
-		rmFrameFilter->setInstableValue(2047.0f);
-		rmFrameFilter->setSpatialFilter(false);
-		rmFrameFilter->setOutputFrameFunction(Misc::createFunctionCall(rainMaker,&RainMaker::receiveRawDepthFrame));
-		}
+	/* Create a second frame filter for the rain maker: */
+	rmFrameFilter=new FrameFilter(frameSize,10,cameraIps.depthProjection,basePlane);
+	rmFrameFilter->setDepthCorrection(*depthCorrection);
+	rmFrameFilter->setValidElevationInterval(cameraIps.depthProjection,basePlane,rainElevationMin,rainElevationMax);
+	rmFrameFilter->setStableParameters(5,3);
+	rmFrameFilter->setRetainValids(false);
+	rmFrameFilter->setInstableValue(2047.0f);
+	rmFrameFilter->setSpatialFilter(false);
+	rmFrameFilter->setOutputFrameFunction(Misc::createFunctionCall(rainMaker,&RainMaker::receiveRawDepthFrame));
+
 
 	/* Start streaming depth frames: */
 	camera->startStreaming(Misc::createFunctionCall(rainMaker,&RainMaker::receiveRawColorFrame),Misc::createFunctionCall(this,&Sandbox::rawDepthFrameDispatcher));
