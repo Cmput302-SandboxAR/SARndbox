@@ -325,8 +325,8 @@ Sandbox::DataItem::DataItem(void)
 	/* Initialize all required extensions: */
 	GLEXTFramebufferObject::initExtension();
 	GLARBTextureRectangle::initExtension();
-	// GLARBTextureFloat::initExtension();
-	// GLARBTextureRg::initExtension();
+	GLARBTextureFloat::initExtension();
+	GLARBTextureRg::initExtension();
 	GLARBDepthTexture::initExtension();
 	GLARBShaderObjects::initExtension();
 	GLARBVertexShader::initExtension();
