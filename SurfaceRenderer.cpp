@@ -878,7 +878,7 @@ void SurfaceRenderer::glRenderElevation(GLContextData& contextData) const
 				float* newDiPtr=(float*)(out.getBuffer());
 				for(unsigned int y=0; y<size[1];y++){
 					for(unsigned int x=0;x<size[0];x++,newDiPtr++){
-						*newDiPtr = *newDiPtr + 738.47;
+						*newDiPtr = *newDiPtr + 735.32 + ((float)y)*0.015 - ((float)x)*0.0018;
 					}
 				}
 			
